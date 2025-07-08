@@ -52,13 +52,11 @@
         }
 
         .logo {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-green);
+            height: 50px; /* Adjusted for logo image */
         }
 
-        .logo span {
-            color: var(--text-dark);
+        .logo img {
+            height: 100%;
         }
 
         .nav-links {
@@ -728,27 +726,15 @@
                 padding: 30px 5%;
             }
         }
-        
-        /* Debugging indicator */
-        .debug-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary-green);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            z-index: 2000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
     </style>
 </head>
 <body>
 
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="logo">ShipWith<span>Tosin</span></div>
+        <div class="logo">
+            <img src="https://i.imgur.com/5Wx5FyL.png" alt="ShipWithTosin Logo">
+        </div>
         
         <!-- Hamburger Menu Button -->
         <button class="hamburger" id="hamburger">
@@ -937,10 +923,9 @@
                 <h3>ShipWithTosin</h3>
                 <p>Your trusted partner for all shipping needs. Fast, reliable, and affordable shipping solutions worldwide.</p>
                 <div class="social-icons">
-                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://instagram.com/shipwithtea" class="social-icon" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
                 </div>
             </div>
             
@@ -969,10 +954,10 @@
             <div class="footer-column">
                 <h3>Contact Info</h3>
                 <ul class="footer-links">
-                    <li><i class="fas fa-map-marker-alt"></i> 123 Shipping St, Lagos, Nigeria</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 3, Salami Giwa Street, Ketu, Lagos</li>
                     <li><i class="fas fa-phone"></i> +234 813 020 8909</li>
                     <li><i class="fas fa-envelope"></i> info@shipwithtosin.com</li>
-                    <li><i class="fas fa-clock"></i> Mon-Fri: 8AM - 6PM</li>
+                    <li><i class="fas fa-clock"></i> Mon-Sun: 8AM - 6PM</li>
                 </ul>
             </div>
         </div>
@@ -1148,4 +1133,4 @@
         document.addEventListener('DOMContentLoaded', initDropdowns);
     </script>
 </body>
-</html> 
+</html>
