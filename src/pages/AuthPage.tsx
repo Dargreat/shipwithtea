@@ -137,13 +137,10 @@ export const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
       const { data, error } = await supabase.auth.signUp({
         email: signUpData.email,
         password: signUpData.password,
         options: {
-          emailRedirectTo: redirectUrl,
           data: {
             full_name: signUpData.fullName,
             phone: signUpData.phone,
@@ -169,10 +166,17 @@ export const AuthPage = () => {
         return;
       }
 
-      toast({
-        title: "Account Created!",
-        description: "Your account has been created successfully. You can now sign in.",
-      });
+      if (data.user && !data.session) {
+        toast({
+          title: "Account Created!",
+          description: "Please check your email to verify your account, then sign in.",
+        });
+      } else {
+        toast({
+          title: "Account Created!",
+          description: "Your account has been created successfully. You can now sign in.",
+        });
+      }
 
       // Clear form and switch to sign in tab
       setSignUpData({

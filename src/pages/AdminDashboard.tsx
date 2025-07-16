@@ -1,0 +1,272 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Navigation } from '@/components/Navigation';
+import { 
+  Users, 
+  Package, 
+  FileText, 
+  Settings, 
+  TrendingUp,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Eye,
+  Edit,
+  Trash2,
+  Upload,
+  Key
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { OrderManagement } from '@/components/admin/OrderManagement';
+import { BlogManagement } from '@/components/admin/BlogManagement';
+import { PricingManagement } from '@/components/admin/PricingManagement';
+import { UserManagement } from '@/components/admin/UserManagement';
+import { ApiKeyViewer } from '@/components/admin/ApiKeyViewer';
+
+export const AdminDashboard = () => {
+  const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    totalBlogPosts: 0,
+    publishedBlogPosts: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Check authentication and admin status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) {
+        navigate('/auth');
+        return;
+      }
+      setUser(session.user);
+      checkAdminStatus(session.user.id);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!session?.user) {
+          navigate('/auth');
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges.",
+          variant: "destructive",
+        });
+        navigate('/dashboard');
+        return;
+      }
+
+      if (!data?.is_admin) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges.",
+          variant: "destructive",
+        });
+        navigate('/dashboard');
+        return;
+      }
+
+      setUserProfile(data);
+      fetchStats();
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      navigate('/dashboard');
+    }
+  };
+
+  const fetchStats = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch user count
+      const { count: userCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      // Fetch order stats
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('status');
+
+      // Fetch blog stats
+      const { data: blogPosts } = await supabase
+        .from('blog_posts')
+        .select('published');
+
+      setStats({
+        totalUsers: userCount || 0,
+        totalOrders: orders?.length || 0,
+        pendingOrders: orders?.filter(o => o.status === 'pending').length || 0,
+        totalBlogPosts: blogPosts?.length || 0,
+        publishedBlogPosts: blogPosts?.filter(b => b.published).length || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!user || !userProfile?.is_admin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Checking permissions...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation user={user} userProfile={userProfile} />
+      
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Manage users, orders, blog posts, and platform settings.
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+          <Card className="shadow-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center">
+                <Users className="h-8 w-8 text-primary" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.totalUsers}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center">
+                <Package className="h-8 w-8 text-blue-500" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.totalOrders}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center">
+                <Clock className="h-8 w-8 text-yellow-500" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Pending Orders</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.pendingOrders}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center">
+                <FileText className="h-8 w-8 text-green-500" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Blog Posts</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.totalBlogPosts}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardContent className="pt-6">
+              <div className="flex items-center">
+                <CheckCircle className="h-8 w-8 text-emerald-500" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-muted-foreground">Published</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.publishedBlogPosts}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Admin Tabs */}
+        <Tabs defaultValue="orders" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="orders" className="flex items-center space-x-2">
+              <Package className="h-4 w-4" />
+              <span>Orders</span>
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center space-x-2">
+              <Users className="h-4 w-4" />
+              <span>Users</span>
+            </TabsTrigger>
+            <TabsTrigger value="blog" className="flex items-center space-x-2">
+              <FileText className="h-4 w-4" />
+              <span>Blog</span>
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="flex items-center space-x-2">
+              <TrendingUp className="h-4 w-4" />
+              <span>Pricing</span>
+            </TabsTrigger>
+            <TabsTrigger value="api-keys" className="flex items-center space-x-2">
+              <Key className="h-4 w-4" />
+              <span>API Keys</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="orders">
+            <OrderManagement onStatsUpdate={fetchStats} />
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UserManagement onStatsUpdate={fetchStats} />
+          </TabsContent>
+
+          <TabsContent value="blog">
+            <BlogManagement onStatsUpdate={fetchStats} />
+          </TabsContent>
+
+          <TabsContent value="pricing">
+            <PricingManagement />
+          </TabsContent>
+
+          <TabsContent value="api-keys">
+            <ApiKeyViewer />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+};
