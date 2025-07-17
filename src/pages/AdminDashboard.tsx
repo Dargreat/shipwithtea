@@ -136,11 +136,20 @@ export const AdminDashboard = () => {
     }
   };
 
-  if (!user || !userProfile?.is_admin) {
+  if (isLoading || !user || (userProfile && !userProfile.is_admin)) {
+    if (!user) {
+      return null; // Will redirect via useEffect
+    }
+    
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Checking permissions...</h2>
+          <h2 className="text-2xl font-bold mb-4">
+            {isLoading ? "Checking permissions..." : "Access Denied"}
+          </h2>
+          {!isLoading && userProfile && !userProfile.is_admin && (
+            <p className="text-muted-foreground">You don't have admin privileges.</p>
+          )}
         </div>
       </div>
     );

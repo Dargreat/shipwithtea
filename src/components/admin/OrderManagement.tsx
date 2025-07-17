@@ -39,7 +39,7 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
         .from('orders')
         .select(`
           *,
-          profiles!inner(full_name, email:user_id)
+          profiles!orders_user_id_fkey(full_name, user_id)
         `)
         .order('created_at', { ascending: false });
 
@@ -183,7 +183,7 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
                       <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-1">
                           <User className="h-3 w-3" />
-                          <span>{order.profiles?.full_name || 'Unknown User'}</span>
+                           <span>{order.profiles?.full_name || 'Unknown User'}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Clock className="h-3 w-3" />

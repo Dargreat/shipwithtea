@@ -262,13 +262,41 @@ export const BlogManagement = ({ onStatsUpdate }: BlogManagementProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="featured_image_url">Featured Image URL</Label>
-                <Input
-                  id="featured_image_url"
-                  value={formData.featured_image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, featured_image_url: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
-                />
+                <Label htmlFor="featured_image">Featured Image</Label>
+                <div className="space-y-2">
+                  <Input
+                    id="featured_image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          setFormData(prev => ({ ...prev, featured_image_url: reader.result as string }));
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  <Input
+                    placeholder="Or enter image URL"
+                    value={formData.featured_image_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, featured_image_url: e.target.value }))}
+                  />
+                  {formData.featured_image_url && (
+                    <div className="mt-2">
+                      <img 
+                        src={formData.featured_image_url} 
+                        alt="Preview" 
+                        className="max-w-xs h-32 object-cover rounded-md border"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">

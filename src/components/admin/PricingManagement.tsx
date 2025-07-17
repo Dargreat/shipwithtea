@@ -39,7 +39,7 @@ export const PricingManagement = () => {
     price_per_kg: '',
   });
 
-  const packageTypes = ['Standard', 'Express', 'Economy', 'Premium'];
+  const packageTypes = ['document', 'fashion', 'food', 'farm produce'];
   const countries = [
     'Nigeria', 'Ghana', 'Kenya', 'South Africa', 'Egypt', 'Morocco',
     'USA', 'UK', 'Germany', 'France', 'Canada', 'Australia', 'China', 'India'

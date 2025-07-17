@@ -203,10 +203,10 @@ export const UserManagement = ({ onStatsUpdate }: UserManagementProps) => {
                               </Badge>
                             )}
                           </div>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
+                         <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
                             <div className="flex items-center space-x-1">
                               <Mail className="h-3 w-3" />
-                              <span>{user.user_id}</span>
+                              <span>User ID: {user.user_id?.substring(0, 8)}...</span>
                             </div>
                             {user.phone && (
                               <div className="flex items-center space-x-1">
