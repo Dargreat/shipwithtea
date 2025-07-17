@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Navigation } from '@/components/Navigation';
-import { Package, Key, Copy, Eye, EyeOff, Truck, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { ApiKeyManager } from '@/components/ApiKeyManager';
+import { Package, Truck, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,7 +13,7 @@ export const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showApiKey, setShowApiKey] = useState(false);
+  
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -86,15 +87,6 @@ export const Dashboard = () => {
     }
   };
 
-  const copyApiKey = () => {
-    if (userProfile?.api_key) {
-      navigator.clipboard.writeText(userProfile.api_key);
-      toast({
-        title: "API Key Copied",
-        description: "Your API key has been copied to clipboard.",
-      });
-    }
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -213,46 +205,10 @@ export const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* API Key Section */}
           <div className="lg:col-span-1">
-            <Card className="shadow-card">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Key className="h-5 w-5 text-primary" />
-                  <span>API Access</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Your API Key:</p>
-                  <div className="flex items-center space-x-2">
-                    <code className="flex-1 p-2 bg-muted rounded text-sm font-mono">
-                      {showApiKey ? userProfile?.api_key : '••••••••••••••••'}
-                    </code>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                    >
-                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={copyApiKey}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  <p>Use this API key to access pricing programmatically:</p>
-                  <code className="block mt-2 p-2 bg-muted rounded text-xs">
-                    GET /api/price?from=Nigeria&to=Ghana&weight=2
-                    <br />
-                    Authorization: Bearer YOUR_API_KEY
-                  </code>
-                </div>
-              </CardContent>
-            </Card>
+            <ApiKeyManager 
+              userProfile={userProfile} 
+              onApiKeyUpdate={() => fetchUserProfile(user.id)}
+            />
           </div>
 
           {/* Recent Orders */}

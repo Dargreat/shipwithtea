@@ -34,10 +34,8 @@ export const Navigation = ({ user, userProfile }: NavigationProps) => {
 
   const navLinks = [
     { href: '/', label: 'Home' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/tracking', label: 'Tracking' },
     { href: '/blog', label: 'Blog' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/api-docs', label: 'API Docs' },
   ];
 
   return (

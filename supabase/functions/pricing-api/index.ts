@@ -45,17 +45,34 @@ const handler = async (req: Request): Promise<Response> => {
     const from = url.searchParams.get('from');
     const to = url.searchParams.get('to');
     const weight = url.searchParams.get('weight');
-    const packageType = url.searchParams.get('package_type') || 'Standard';
+    const packageType = url.searchParams.get('packageType') || url.searchParams.get('package_type') || 'Documents';
 
     // Validate required parameters
-    if (!from || !to || !weight) {
+    if (!from || !to || !weight || !packageType) {
       return new Response(
         JSON.stringify({ 
-          error: 'Missing required parameters: from, to, weight' 
+          success: false,
+          error: 'Missing required parameters: from, to, weight, packageType',
+          example: '?from=Nigeria&to=Ghana&weight=2&packageType=Documents'
         }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
+    }
+
+    // Validate weight is a positive number
+    const weightNum = parseFloat(weight);
+    if (isNaN(weightNum) || weightNum <= 0) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Weight must be a positive number'
+        }),
+        { 
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          status: 400 
         }
       );
     }
@@ -87,7 +104,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('API key validation failed:', profileError);
       return new Response(
         JSON.stringify({ 
-          error: 'Invalid API key' 
+          success: false,
+          error: 'Invalid API key. Please check your API key and try again.' 
         }),
         {
           status: 401,
@@ -105,41 +123,36 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('package_type', packageType)
       .single();
 
-    if (pricingError || !pricing) {
-      console.error('Pricing lookup failed:', pricingError);
-      return new Response(
-        JSON.stringify({ 
-          error: `No pricing found for route: ${from} → ${to} (${packageType})`,
-          suggestion: 'Check available routes or contact support'
-        }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json', ...corsHeaders },
-        }
-      );
+    // Use default pricing if no specific pricing found
+    let basePrice = 15;
+    let pricePerKg = 25;
+    let estimatedDelivery = '3-5 business days';
+
+    if (!pricingError && pricing) {
+      basePrice = pricing.base_price || 15;
+      pricePerKg = pricing.price_per_kg || 25;
+    } else {
+      console.log(`Using default pricing for route: ${from} → ${to} (${packageType})`);
     }
 
     // Calculate total cost
-    const weightNum = parseFloat(weight);
-    const basePrice = pricing.base_price || 0;
-    const weightCost = pricing.price_per_kg * weightNum;
+    const weightCost = pricePerKg * weightNum;
     const totalCost = basePrice + weightCost;
 
     const response = {
       success: true,
-      pricing: {
-        from_country: pricing.from_country,
-        to_country: pricing.to_country,
-        package_type: pricing.package_type,
+      data: {
+        from,
+        to,
         weight: weightNum,
-        base_price: basePrice,
-        price_per_kg: pricing.price_per_kg,
-        weight_cost: weightCost,
-        total_cost: totalCost,
-        currency: 'USD'
-      },
-      user: {
-        name: profile.full_name
+        packageType,
+        basePrice,
+        pricePerKg,
+        weightCost: parseFloat(weightCost.toFixed(2)),
+        totalCost: parseFloat(totalCost.toFixed(2)),
+        currency: 'USD',
+        estimatedDelivery,
+        apiKeyHolder: profile.full_name || 'User'
       },
       timestamp: new Date().toISOString()
     };
@@ -163,7 +176,8 @@ const handler = async (req: Request): Promise<Response> => {
     console.error('Error in pricing API:', error);
     return new Response(
       JSON.stringify({ 
-        error: 'Internal server error',
+        success: false,
+        error: 'Internal server error. Please try again later.',
         message: error.message 
       }),
       {
