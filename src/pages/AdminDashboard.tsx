@@ -45,7 +45,7 @@ export const AdminDashboard = () => {
     // Check authentication and admin status
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session?.user) {
-        navigate('/auth');
+        navigate('/admin-auth');
         return;
       }
       setUser(session.user);
@@ -56,7 +56,7 @@ export const AdminDashboard = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!session?.user) {
-          navigate('/auth');
+          navigate('/admin-auth');
           return;
         }
         setUser(session.user);
@@ -82,7 +82,7 @@ export const AdminDashboard = () => {
           description: "You don't have admin privileges.",
           variant: "destructive",
         });
-        navigate('/dashboard');
+        navigate('/admin-auth');
         return;
       }
 
@@ -92,7 +92,7 @@ export const AdminDashboard = () => {
           description: "You don't have admin privileges.",
           variant: "destructive",
         });
-        navigate('/dashboard');
+        navigate('/admin-auth');
         return;
       }
 
@@ -100,7 +100,7 @@ export const AdminDashboard = () => {
       fetchStats();
     } catch (error) {
       console.error('Error checking admin status:', error);
-      navigate('/dashboard');
+      navigate('/admin-auth');
     }
   };
 

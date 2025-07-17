@@ -7,6 +7,7 @@ import { HomePage } from "./pages/HomePage";
 import { AuthPage } from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import { AdminAuthPage } from "./pages/AdminAuthPage";
 import { BlogPage } from "./pages/BlogPage";
 import { BlogPostPage } from "./pages/BlogPostPage";
 import { ApiDocsPage } from "./pages/ApiDocsPage";
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin-auth" element={<AdminAuthPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<BlogPostPage />} />
