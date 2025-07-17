@@ -36,6 +36,26 @@ export const BlogPage = () => {
       }
     });
     fetchBlogPosts();
+    
+    // Set up real-time listener for blog posts
+    const channel = supabase
+      .channel('blog-posts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'blog_posts'
+        },
+        () => {
+          fetchBlogPosts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchUserProfile = async (userId: string) => {
@@ -102,11 +122,18 @@ export const BlogPage = () => {
 
           {/* Loading State */}
           {isLoading ? (
-            <div className="text-center py-12">
-              <div className="inline-flex items-center space-x-2">
-                <Clock className="h-5 w-5 animate-spin text-primary" />
-                <span className="text-muted-foreground">Loading posts...</span>
-              </div>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="border rounded-lg p-6">
+                  <div className="h-6 w-3/4 bg-muted animate-pulse rounded mb-2"></div>
+                  <div className="h-4 w-full bg-muted animate-pulse rounded mb-2"></div>
+                  <div className="h-4 w-2/3 bg-muted animate-pulse rounded mb-4"></div>
+                  <div className="flex items-center space-x-4">
+                    <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
+                    <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : posts.length === 0 ? (
             <div className="text-center py-12">

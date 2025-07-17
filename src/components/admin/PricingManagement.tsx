@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   TrendingUp, 
   Plus,
@@ -13,16 +14,21 @@ import {
   X,
   Upload,
   Download,
-  DollarSign
+  DollarSign,
+  FileSpreadsheet,
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import * as XLSX from 'xlsx';
 
 export const PricingManagement = () => {
   const [pricingData, setPricingData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingPrice, setEditingPrice] = useState<any>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -41,6 +47,26 @@ export const PricingManagement = () => {
 
   useEffect(() => {
     fetchPricingData();
+    
+    // Set up real-time listener for pricing changes
+    const channel = supabase
+      .channel('pricing-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'pricing'
+        },
+        () => {
+          fetchPricingData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchPricingData = async () => {
@@ -200,6 +226,127 @@ export const PricingManagement = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith('.xlsx') && !file.name.toLowerCase().endsWith('.xls')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload an Excel file (.xlsx or .xls)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      // Skip header row and process data
+      const rows = jsonData.slice(1) as any[][];
+      const validRows = [];
+      const errors = [];
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length < 4) continue;
+
+        const [from_country, to_country, package_type, base_price, price_per_kg] = row;
+        
+        if (!from_country || !to_country || !package_type || !price_per_kg) {
+          errors.push(`Row ${i + 2}: Missing required fields`);
+          continue;
+        }
+
+        const parsedBasePrice = parseFloat(base_price) || 0;
+        const parsedPricePerKg = parseFloat(price_per_kg);
+
+        if (isNaN(parsedPricePerKg) || parsedPricePerKg <= 0) {
+          errors.push(`Row ${i + 2}: Invalid price per kg`);
+          continue;
+        }
+
+        validRows.push({
+          from_country: String(from_country).trim(),
+          to_country: String(to_country).trim(),
+          package_type: String(package_type).trim(),
+          base_price: parsedBasePrice,
+          price_per_kg: parsedPricePerKg,
+        });
+      }
+
+      if (errors.length > 0) {
+        toast({
+          title: "Upload Errors",
+          description: `${errors.length} rows had errors and were skipped.`,
+          variant: "destructive",
+        });
+      }
+
+      if (validRows.length === 0) {
+        toast({
+          title: "No Valid Data",
+          description: "No valid pricing data found in the Excel file.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Clear existing pricing data and insert new data
+      const { error: deleteError } = await supabase
+        .from('pricing')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
+
+      if (deleteError) {
+        console.error('Error clearing existing pricing:', deleteError);
+        toast({
+          title: "Upload Failed",
+          description: "Failed to clear existing pricing data.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error: insertError } = await supabase
+        .from('pricing')
+        .insert(validRows);
+
+      if (insertError) {
+        console.error('Error inserting pricing data:', insertError);
+        toast({
+          title: "Upload Failed",
+          description: "Failed to upload pricing data.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Upload Successful",
+        description: `${validRows.length} pricing rules uploaded successfully.`,
+      });
+
+      fetchPricingData();
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast({
+        title: "Upload Failed",
+        description: "Error processing the Excel file.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="shadow-card">
@@ -214,6 +361,48 @@ export const PricingManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* Excel Upload Section */}
+      <Card className="shadow-card">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileSpreadsheet className="h-5 w-5 text-primary" />
+            <span>Excel File Upload</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Upload an Excel file (.xlsx or .xls) with columns: From Country, To Country, Package Type, Base Price, Price per KG.
+                This will replace all existing pricing data.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="flex items-center space-x-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {isUploading ? 'Uploading...' : 'Upload Excel File'}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Supported formats: .xlsx, .xls
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Create/Edit Form */}
       {isEditing && (
         <Card className="shadow-card">

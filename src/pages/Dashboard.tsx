@@ -31,15 +31,44 @@ export const Dashboard = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (!session?.user) {
           navigate('/auth');
+          return;
         }
+        setUser(session.user);
+        await fetchUserProfile(session.user.id);
+        await fetchOrders(session.user.id);
       }
     );
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    // Set up real-time listener for orders
+    const channel = supabase
+      .channel('orders-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          fetchOrders(user.id);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const fetchUserProfile = async (userId: string) => {
     try {

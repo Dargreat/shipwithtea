@@ -54,10 +54,13 @@ export const AdminDashboard = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (!session?.user) {
           navigate('/auth');
+          return;
         }
+        setUser(session.user);
+        await checkAdminStatus(session.user.id);
       }
     );
 
