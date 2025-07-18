@@ -17,7 +17,8 @@ import {
   Edit,
   Trash2,
   Upload,
-  Key
+  Key,
+  MessageCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +27,7 @@ import { BlogManagement } from '@/components/admin/BlogManagement';
 import { PricingManagement } from '@/components/admin/PricingManagement';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { ApiKeyViewer } from '@/components/admin/ApiKeyViewer';
+import { CommentManagement } from '@/components/admin/CommentManagement';
 
 export const AdminDashboard = () => {
   const [user, setUser] = useState<any>(null);
@@ -136,20 +138,31 @@ export const AdminDashboard = () => {
     }
   };
 
-  if (isLoading || !user || (userProfile && !userProfile.is_admin)) {
-    if (!user) {
-      return null; // Will redirect via useEffect
-    }
-    
+  if (!user) {
+    return null; // Will redirect via useEffect
+  }
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">
-            {isLoading ? "Checking permissions..." : "Access Denied"}
-          </h2>
-          {!isLoading && userProfile && !userProfile.is_admin && (
-            <p className="text-muted-foreground">You don't have admin privileges.</p>
-          )}
+          <Clock className="h-8 w-8 text-primary mx-auto mb-4 animate-spin" />
+          <h2 className="text-2xl font-bold mb-2">Checking permissions...</h2>
+          <p className="text-muted-foreground">Verifying admin access</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (userProfile && !userProfile.is_admin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4 text-destructive">Access Denied</h2>
+          <p className="text-muted-foreground mb-4">You don't have admin privileges.</p>
+          <Button onClick={() => navigate('/dashboard')} variant="outline">
+            Back to Dashboard
+          </Button>
         </div>
       </div>
     );
@@ -235,7 +248,7 @@ export const AdminDashboard = () => {
 
         {/* Admin Tabs */}
         <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="orders" className="flex items-center space-x-2">
               <Package className="h-4 w-4" />
               <span>Orders</span>
@@ -247,6 +260,10 @@ export const AdminDashboard = () => {
             <TabsTrigger value="blog" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
               <span>Blog</span>
+            </TabsTrigger>
+            <TabsTrigger value="comments" className="flex items-center space-x-2">
+              <MessageCircle className="h-4 w-4" />
+              <span>Comments</span>
             </TabsTrigger>
             <TabsTrigger value="pricing" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
@@ -268,6 +285,10 @@ export const AdminDashboard = () => {
 
           <TabsContent value="blog">
             <BlogManagement onStatsUpdate={fetchStats} />
+          </TabsContent>
+
+          <TabsContent value="comments">
+            <CommentManagement onStatsUpdate={fetchStats} />
           </TabsContent>
 
           <TabsContent value="pricing">

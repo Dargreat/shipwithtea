@@ -39,7 +39,7 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
         .from('orders')
         .select(`
           *,
-          profiles!orders_user_id_fkey(full_name, user_id)
+          profiles(full_name, user_id)
         `)
         .order('created_at', { ascending: false });
 

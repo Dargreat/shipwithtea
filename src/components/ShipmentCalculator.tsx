@@ -149,8 +149,8 @@ export const ShipmentCalculator = ({ user, onLoginRequired }: CalculatorProps) =
       if (error) throw error;
 
       toast({
-        title: "Order Created Successfully",
-        description: "Your shipping order has been submitted. Please proceed with payment.",
+        title: "Order Created Successfully!",
+        description: "Your shipping order has been created and is pending approval. You can track its progress in your dashboard.",
       });
 
       // Reset form

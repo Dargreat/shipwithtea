@@ -151,12 +151,18 @@ export const Dashboard = () => {
     }
   };
 
-  if (!user) {
+  if (isLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Loading...</h2>
+        <Clock className="h-8 w-8 text-primary mx-auto mb-4 animate-spin" />
+        <h2 className="text-2xl font-bold mb-2">Loading Dashboard...</h2>
+        <p className="text-muted-foreground">Please wait while we load your data</p>
       </div>
     </div>;
+  }
+
+  if (!user) {
+    return null; // Will redirect via useEffect
   }
 
   return (

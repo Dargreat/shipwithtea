@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Navigation } from '@/components/Navigation';
-import { Calendar, User, ArrowLeft, Clock, Share2 } from 'lucide-react';
+import { BlogComments } from '@/components/BlogComments';
+import { Calendar, User, ArrowLeft, Clock, Share2, Copy } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -107,16 +108,42 @@ export const BlogPostPage = () => {
           text: post.excerpt || post.content.substring(0, 150),
           url: window.location.href,
         });
+        toast({
+          title: "Shared Successfully",
+          description: "Post has been shared!",
+        });
       } catch (error) {
         console.log('Error sharing:', error);
+        // Fallback to copying URL
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          toast({
+            title: "Link Copied",
+            description: "Post URL has been copied to clipboard.",
+          });
+        } catch (clipboardError) {
+          toast({
+            title: "Share Failed",
+            description: "Unable to share or copy link.",
+            variant: "destructive",
+          });
+        }
       }
     } else {
       // Fallback to copying URL
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link Copied",
-        description: "Post URL has been copied to clipboard.",
-      });
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link Copied", 
+          description: "Post URL has been copied to clipboard.",
+        });
+      } catch (error) {
+        toast({
+          title: "Copy Failed",
+          description: "Unable to copy link to clipboard.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -207,10 +234,20 @@ export const BlogPostPage = () => {
                 </div>
               </div>
               
-              <Button variant="outline" size="sm" onClick={sharePost}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm" onClick={sharePost}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigator.clipboard.writeText(window.location.href)}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy Link
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -223,6 +260,11 @@ export const BlogPostPage = () => {
               />
             </CardContent>
           </Card>
+
+          {/* Comments Section */}
+          <div className="mt-12">
+            <BlogComments blogPostId={post.id} />
+          </div>
 
           {/* Call to Action */}
           <div className="mt-16 text-center py-12 bg-gradient-card rounded-lg border border-primary/20">
