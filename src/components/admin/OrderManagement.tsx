@@ -123,7 +123,7 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'rejected':
         return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'in-transit':
+      case 'shipped':
         return <Truck className="h-4 w-4 text-blue-500" />;
       case 'delivered':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
@@ -140,7 +140,7 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
         return 'default';
       case 'rejected':
         return 'destructive';
-      case 'in-transit':
+      case 'shipped':
         return 'secondary';
       case 'delivered':
         return 'default';
@@ -262,15 +262,15 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
                           <Button
                             variant="secondary"
                             size="sm"
-                            onClick={() => updateOrderStatus(order.id, 'in-transit')}
+                            onClick={() => updateOrderStatus(order.id, 'shipped')}
                             disabled={isUpdating}
                           >
                             <Truck className="h-3 w-3 mr-1" />
-                            In Transit
+                            Ship Order
                           </Button>
                         )}
                         
-                        {order.status === 'in-transit' && (
+                        {order.status === 'shipped' && (
                           <Button
                             variant="default"
                             size="sm"

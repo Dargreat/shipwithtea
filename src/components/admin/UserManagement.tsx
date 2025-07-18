@@ -79,7 +79,7 @@ export const UserManagement = ({ onStatsUpdate }: UserManagementProps) => {
         .from('profiles')
         .update({ is_admin: !currentAdminStatus })
         .eq('user_id', userId)
-        .select();
+        .select('user_id, is_admin');
 
       if (error) {
         console.error('Error updating admin status:', error);
