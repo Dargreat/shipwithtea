@@ -178,13 +178,13 @@ export const ShipmentCalculator = ({ user, onLoginRequired }: CalculatorProps) =
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-card">
       <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center space-x-2 text-2xl">
+        <CardTitle className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2 text-xl sm:text-2xl">
           <Calculator className="h-6 w-6 text-primary" />
           <span>Calculate Shipping Cost</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="shipFrom">Ship From *</Label>
             <Select 
@@ -293,12 +293,12 @@ export const ShipmentCalculator = ({ user, onLoginRequired }: CalculatorProps) =
           {estimatedCost !== null && (
             <div className="bg-gradient-card p-6 rounded-lg border border-primary/20">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Estimated Shipping Cost</h3>
-                <div className="text-3xl font-bold text-primary mb-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">Estimated Shipping Cost</h3>
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-4">
                   ${estimatedCost.toFixed(2)} USD
                 </div>
-                <div className="bg-accent/50 p-4 rounded-lg mb-4">
-                  <h4 className="font-semibold mb-2">Payment Details</h4>
+                <div className="bg-accent/50 p-4 rounded-lg mb-4 text-left">
+                  <h4 className="font-semibold mb-2 text-center">Payment Details</h4>
                   <p className="text-sm text-muted-foreground mb-1">
                     <strong>Account Number:</strong> 8130208909
                   </p>
