@@ -118,9 +118,9 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: pricing, error: pricingError } = await supabase
       .from('pricing')
       .select('*')
-      .eq('from_country', from)
-      .eq('to_country', to)
-      .eq('package_type', packageType)
+      .ilike('from_country', from)
+      .ilike('to_country', to)
+      .ilike('package_type', packageType)
       .single();
 
     // Check if pricing rules exist
