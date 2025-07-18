@@ -1,1 +1,7 @@
 project_id = "udituntwllttyejobufm"
+
+[functions.pricing-api]
+verify_jwt = false
+
+[functions.admin-stats]
+verify_jwt = false
