@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Package, Menu, X, User, LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { AdminNotifications } from '@/components/admin/AdminNotifications';
 
 interface NavigationProps {
   user?: any;
@@ -78,13 +79,16 @@ export const Navigation = ({ user, userProfile }: NavigationProps) => {
                   <span>Dashboard</span>
                 </Button>
                 {userProfile?.is_admin && (
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/admin')}
-                    size="sm"
-                  >
-                    Admin
-                  </Button>
+                  <>
+                    <AdminNotifications />
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate('/admin')}
+                      size="sm"
+                    >
+                      Admin
+                    </Button>
+                  </>
                 )}
                 <Button
                   variant="ghost"
