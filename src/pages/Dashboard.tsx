@@ -125,7 +125,7 @@ export const Dashboard = () => {
         return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'rejected':
         return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'in-transit':
+      case 'shipped':
         return <Truck className="h-4 w-4 text-blue-500" />;
       case 'delivered':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
@@ -142,7 +142,7 @@ export const Dashboard = () => {
         return 'text-green-600 bg-green-50 border-green-200';
       case 'rejected':
         return 'text-red-600 bg-red-50 border-red-200';
-      case 'in-transit':
+      case 'shipped':
         return 'text-blue-600 bg-blue-50 border-blue-200';
       case 'delivered':
         return 'text-green-700 bg-green-100 border-green-300';
@@ -212,11 +212,11 @@ export const Dashboard = () => {
             <CardContent className="pt-6">
               <div className="flex items-center">
                 <Truck className="h-8 w-8 text-blue-500" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-muted-foreground">In Transit</p>
-                  <p className="text-2xl font-bold text-foreground">
-                    {orders.filter(order => order.status === 'in-transit').length}
-                  </p>
+                 <div className="ml-4">
+                   <p className="text-sm font-medium text-muted-foreground">Shipped</p>
+                   <p className="text-2xl font-bold text-foreground">
+                     {orders.filter(order => order.status === 'shipped').length}
+                   </p>
                 </div>
               </div>
             </CardContent>
@@ -294,10 +294,10 @@ export const Dashboard = () => {
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                          </div>
+                         <div className="text-right">
+                           <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
+                             {order.status === 'shipped' ? 'In Transit' : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                           </div>
                           {order.estimated_cost && (
                             <p className="text-sm font-medium text-foreground mt-1">
                               ${order.estimated_cost.toFixed(2)}

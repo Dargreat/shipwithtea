@@ -75,6 +75,28 @@ export const UserManagement = ({ onStatsUpdate }: UserManagementProps) => {
     try {
       console.log('Toggling admin status for user:', userId, 'current status:', currentAdminStatus);
       
+      // First check if we can get the current user
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      console.log('Current user performing action:', currentUser?.id);
+      
+      // Check if current user is admin
+      const { data: currentUserProfile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('user_id', currentUser?.id)
+        .single();
+      
+      console.log('Current user admin status:', currentUserProfile?.is_admin);
+      
+      if (!currentUserProfile?.is_admin) {
+        toast({
+          title: "Access Denied",
+          description: "You must be an admin to perform this action.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('profiles')
         .update({ is_admin: !currentAdminStatus })
@@ -85,7 +107,7 @@ export const UserManagement = ({ onStatsUpdate }: UserManagementProps) => {
         console.error('Error updating admin status:', error);
         toast({
           title: "Update Failed",
-          description: "Unable to update admin status. Please try again.",
+          description: `Unable to update admin status: ${error.message}`,
           variant: "destructive",
         });
         return;
@@ -98,11 +120,9 @@ export const UserManagement = ({ onStatsUpdate }: UserManagementProps) => {
         description: `User admin status ${!currentAdminStatus ? 'granted' : 'revoked'}.`,
       });
 
-      // Wait a moment for the database to propagate
-      setTimeout(() => {
-        fetchUsers();
-        onStatsUpdate();
-      }, 500);
+      // Refresh the data immediately
+      fetchUsers();
+      onStatsUpdate();
     } catch (error) {
       console.error('Error updating admin status:', error);
       toast({
