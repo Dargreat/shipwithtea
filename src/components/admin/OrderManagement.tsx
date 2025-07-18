@@ -35,16 +35,14 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      // First get orders
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          profiles!inner(full_name, user_id)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching orders:', error);
+      if (ordersError) {
+        console.error('Error fetching orders:', ordersError);
         toast({
           title: "Error Loading Orders",
           description: "Unable to load orders. Please try again.",
@@ -53,9 +51,33 @@ export const OrderManagement = ({ onStatsUpdate }: OrderManagementProps) => {
         return;
       }
 
-      setOrders(data || []);
+      // Then get profiles for the user names
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name');
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Combine orders with profile data
+      const ordersWithProfiles = ordersData?.map(order => {
+        const profile = profilesData?.find(p => p.user_id === order.user_id);
+        return {
+          ...order,
+          profiles: profile ? { full_name: profile.full_name, user_id: profile.user_id } : null
+        };
+      }) || [];
+
+      setOrders(ordersWithProfiles);
+
     } catch (error) {
       console.error('Error fetching orders:', error);
+      toast({
+        title: "Error Loading Orders",
+        description: "Unable to load orders. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

@@ -73,10 +73,13 @@ export const UserManagement = ({ onStatsUpdate }: UserManagementProps) => {
   const toggleAdminStatus = async (userId: string, currentAdminStatus: boolean) => {
     setIsUpdating(true);
     try {
-      const { error } = await supabase
+      console.log('Toggling admin status for user:', userId, 'current status:', currentAdminStatus);
+      
+      const { data, error } = await supabase
         .from('profiles')
         .update({ is_admin: !currentAdminStatus })
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .select();
 
       if (error) {
         console.error('Error updating admin status:', error);
@@ -88,15 +91,25 @@ export const UserManagement = ({ onStatsUpdate }: UserManagementProps) => {
         return;
       }
 
+      console.log('Admin status update result:', data);
+
       toast({
         title: "Admin Status Updated",
         description: `User admin status ${!currentAdminStatus ? 'granted' : 'revoked'}.`,
       });
 
-      fetchUsers();
-      onStatsUpdate();
+      // Wait a moment for the database to propagate
+      setTimeout(() => {
+        fetchUsers();
+        onStatsUpdate();
+      }, 500);
     } catch (error) {
       console.error('Error updating admin status:', error);
+      toast({
+        title: "Update Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsUpdating(false);
     }
