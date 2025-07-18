@@ -106,33 +106,40 @@ export const HomePage = () => {
       <Navigation user={user} userProfile={userProfile} />
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-90"></div>
-        <div 
-          className="absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        ></div>
-        <div className="relative container mx-auto px-4 py-20 text-center">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Ship With
-              <span className="block bg-gradient-to-r from-white to-green-200 bg-clip-text text-transparent">
-                Tosin
-              </span>
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 leading-relaxed max-w-3xl mx-auto">
-              Fast, reliable, and affordable shipping solutions to anywhere in the world. 
-              Your trusted partner for international logistics.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button variant="premium" size="xl" className="text-lg">
-                <Package className="h-5 w-5 mr-2" />
-                Start Shipping
-              </Button>
-              <Button variant="outline" size="xl" className="text-lg bg-white/10 border-white/20 text-white hover:bg-white/20">
-                <Truck className="h-5 w-5 mr-2" />
-                Track Package
-              </Button>
+      <section className="flex flex-col lg:flex-row gap-6 lg:gap-10 px-4 sm:px-6 lg:px-8 py-8 lg:py-16 max-w-7xl mx-auto min-h-[90vh] items-center">
+        <div className="flex-1 flex flex-col justify-center text-center lg:text-left transform opacity-0 animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-extrabold mb-4 lg:mb-6 leading-none text-foreground">
+            SHIP.<br />
+            TRACK.<br />
+            DELIVER.
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0">
+            Join 10,000+ businesses shipping globally with confidence.
+          </p>
+        </div>
+        
+        <div className="flex-1 border border-primary/30 rounded-lg bg-primary/5 h-[400px] sm:h-[500px] lg:h-[650px] w-full transform opacity-0 animate-fade-in shadow-elegant">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 h-full p-2 sm:p-4">
+            <div className="border border-primary overflow-hidden transition-all duration-300 hover:scale-95 hover:shadow-primary/20 hover:shadow-lg rounded">
+              <img 
+                src="https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?q=80&w=1415&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                alt="Cargo Ship" 
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              />
+            </div>
+            <div className="border border-primary overflow-hidden transition-all duration-300 hover:scale-95 hover:shadow-primary/20 hover:shadow-lg rounded">
+              <img 
+                src="https://images.unsplash.com/photo-1645865406062-872af9faa81a?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                alt="Air Freight" 
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              />
+            </div>
+            <div className="col-span-2 border border-primary overflow-hidden transition-all duration-300 hover:scale-95 hover:shadow-primary/20 hover:shadow-lg rounded">
+              <img 
+                src="https://images.unsplash.com/photo-1601172449745-ec49ac55ae13?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                alt="Warehouse" 
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              />
             </div>
           </div>
         </div>
@@ -156,18 +163,32 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* Calculator Section */}
-      <section className="py-20 bg-background">
+      {/* Shipping Form Section */}
+      <section className="py-16 lg:py-24 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Get Your Shipping Quote
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              Ship With Confidence
             </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Calculate your shipping costs instantly with our easy-to-use calculator
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+              Get instant quotes and ship your packages worldwide with our easy-to-use platform
             </p>
           </div>
-          <ShipmentCalculator user={user} onLoginRequired={handleLoginRequired} />
+          
+          <div className="max-w-4xl mx-auto bg-card border rounded-2xl shadow-elegant overflow-hidden">
+            <div className="bg-primary text-primary-foreground px-6 sm:px-10 py-6 sm:py-8 text-center">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3">
+                Create New Shipment
+              </h3>
+              <p className="text-sm sm:text-base text-primary-foreground/90">
+                Fill in the details below to get started
+              </p>
+            </div>
+            
+            <div className="p-6 sm:p-8 lg:p-10">
+              <ShipmentCalculator user={user} onLoginRequired={handleLoginRequired} />
+            </div>
+          </div>
         </div>
       </section>
 
