@@ -344,26 +344,82 @@ print_r($data);
             </CardHeader>
             <CardContent>
               <h4 className="font-semibold mb-3">Success Response (200)</h4>
+              <p className="text-sm text-muted-foreground mb-2">When pricing rules exist for the requested route:</p>
               <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm mb-6">
                 <code>{JSON.stringify({
                   success: true,
                   data: {
+                    from: "Nigeria",
+                    to: "Ghana",
+                    weight: 2,
+                    packageType: "Documents",
                     basePrice: 15,
                     pricePerKg: 25,
+                    weightCost: 50,
                     totalCost: 65,
                     currency: "USD",
-                    estimatedDelivery: "3-5 business days"
-                  }
+                    estimatedDelivery: "3-5 business days",
+                    apiKeyHolder: "Your Name"
+                  },
+                  timestamp: "2025-07-18T12:39:08.763Z"
                 }, null, 2)}</code>
               </pre>
 
-              <h4 className="font-semibold mb-3">Error Response (400/401/500)</h4>
+              <h4 className="font-semibold mb-3">No Pricing Rules (404)</h4>
+              <p className="text-sm text-muted-foreground mb-2">When no pricing rules are configured for the route:</p>
+              <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm mb-6">
+                <code>{JSON.stringify({
+                  success: false,
+                  error: "No pricing rules yet",
+                  message: "No pricing configuration found for route Nigeria to Ghana with package type Documents. Please contact support to set up pricing for this route."
+                }, null, 2)}</code>
+              </pre>
+
+              <h4 className="font-semibold mb-3">Authentication Error (401)</h4>
+              <p className="text-sm text-muted-foreground mb-2">When API key is missing or invalid:</p>
+              <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm mb-6">
+                <code>{JSON.stringify({
+                  success: false,
+                  error: "Invalid API key. Please check your API key and try again."
+                }, null, 2)}</code>
+              </pre>
+
+              <h4 className="font-semibold mb-3">Validation Error (400)</h4>
+              <p className="text-sm text-muted-foreground mb-2">When required parameters are missing or invalid:</p>
               <pre className="bg-muted p-4 rounded-lg overflow-auto text-sm">
                 <code>{JSON.stringify({
                   success: false,
-                  error: "Invalid API key or missing parameters"
+                  error: "Missing required parameters: from, to, weight, packageType",
+                  example: "?from=Nigeria&to=Ghana&weight=2&packageType=Documents"
                 }, null, 2)}</code>
               </pre>
+            </CardContent>
+          </Card>
+
+          {/* Usage Guide */}
+          <Card className="shadow-card mt-8">
+            <CardHeader>
+              <CardTitle>How to Successfully Call the API</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Step-by-Step Guide:</h4>
+                <ol className="list-decimal list-inside space-y-2 text-blue-800">
+                  <li>Get your API key from your profile (visible above if logged in)</li>
+                  <li>Include the API key in the Authorization header: <code className="bg-blue-100 px-2 py-1 rounded">Authorization: Bearer YOUR_API_KEY</code></li>
+                  <li>Ensure pricing rules exist for your route in the admin panel</li>
+                  <li>Make a GET request with required parameters: from, to, weight, packageType</li>
+                </ol>
+              </div>
+              
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <h4 className="font-semibold text-amber-900 mb-2">Common Issues:</h4>
+                <ul className="list-disc list-inside space-y-1 text-amber-800">
+                  <li><strong>404 "No pricing rules yet":</strong> Admin needs to add pricing for your route</li>
+                  <li><strong>401 "Invalid API key":</strong> Check your API key is correct</li>
+                  <li><strong>400 "Missing parameters":</strong> Include all required query parameters</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
         </div>

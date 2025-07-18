@@ -123,17 +123,26 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('package_type', packageType)
       .single();
 
-    // Use default pricing if no specific pricing found
-    let basePrice = 15;
-    let pricePerKg = 25;
-    let estimatedDelivery = '3-5 business days';
-
-    if (!pricingError && pricing) {
-      basePrice = pricing.base_price || 15;
-      pricePerKg = pricing.price_per_kg || 25;
-    } else {
-      console.log(`Using default pricing for route: ${from} → ${to} (${packageType})`);
+    // Check if pricing rules exist
+    if (pricingError || !pricing) {
+      console.log(`No pricing rules found for route: ${from} → ${to} (${packageType})`);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'No pricing rules yet',
+          message: `No pricing configuration found for route ${from} to ${to} with package type ${packageType}. Please contact support to set up pricing for this route.`
+        }),
+        {
+          status: 404,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
     }
+
+    // Use actual pricing from database
+    const basePrice = pricing.base_price || 0;
+    const pricePerKg = pricing.price_per_kg;
+    const estimatedDelivery = '3-5 business days';
 
     // Calculate total cost
     const weightCost = pricePerKg * weightNum;
