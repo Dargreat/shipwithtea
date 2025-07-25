@@ -63,7 +63,7 @@ export const ApiKeyManager = ({ userProfile, onApiKeyUpdate }: ApiKeyManagerProp
     
     try {
       const response = await fetch(
-        `https://tosinadegbola.com/api/pricing-api?from=Nigeria&to=Ghana&weight=2&packageType=Documents`,
+        `https://udituntwllttyejobufm.supabase.co/functions/v1/pricing-api?from=Nigeria&to=Ghana&weight=2&packageType=document`,
         {
           headers: {
             'Authorization': `Bearer ${userProfile.api_key}`,
@@ -217,12 +217,12 @@ export const ApiKeyManager = ({ userProfile, onApiKeyUpdate }: ApiKeyManagerProp
           <h4 className="font-medium mb-2">Quick Start:</h4>
           <div className="text-sm text-muted-foreground space-y-2">
             <p>• Use your API key in the Authorization header</p>
-            <p>• Base URL: <code className="bg-muted px-1 rounded">https://tosinadegbola.com/api/</code></p>
+            <p>• Base URL: <code className="bg-muted px-1 rounded">https://udituntwllttyejobufm.supabase.co/functions/v1/</code></p>
             <p>• Rate limit: 100 requests per minute</p>
           </div>
           <code className="block mt-3 p-2 bg-muted rounded text-xs">
-            curl -H "Authorization: Bearer {userProfile?.api_key || 'YOUR_API_KEY'}" \\{'\n'}
-            {' '}"https://tosinadegbola.com/api/pricing-api?from=Nigeria&to=Ghana&weight=2"
+            curl -H "Authorization: Bearer {userProfile?.api_key || 'YOUR_API_KEY'}" \{'\n'}
+            {' '}"https://udituntwllttyejobufm.supabase.co/functions/v1/pricing-api?from=Nigeria&to=Ghana&weight=2&packageType=document"
           </code>
         </div>
       </CardContent>
