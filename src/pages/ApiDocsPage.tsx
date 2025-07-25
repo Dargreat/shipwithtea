@@ -109,12 +109,12 @@ export const ApiDocsPage = () => {
   };
 
   const codeExamples = {
-    curl: `curl -X GET "${config.domain}/api/pricing-api?from=Nigeria&to=Ghana&weight=2&packageType=document" \\
+    curl: `curl -X GET "https://udituntwllttyejobufm.supabase.co/functions/v1/pricing-api?from=Nigeria&to=Ghana&weight=2&packageType=document" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json"`,
     
     javascript: `const response = await fetch(
-  '${config.domain}/api/pricing-api?from=Nigeria&to=Ghana&weight=2&packageType=document',
+  'https://udituntwllttyejobufm.supabase.co/functions/v1/pricing-api?from=Nigeria&to=Ghana&weight=2&packageType=document',
   {
     headers: {
       'Authorization': 'Bearer YOUR_API_KEY',
@@ -128,7 +128,7 @@ console.log(data);`,
 
     python: `import requests
 
-url = "${config.domain}/api/pricing-api"
+url = "https://udituntwllttyejobufm.supabase.co/functions/v1/pricing-api"
 params = {
     "from": "Nigeria",
     "to": "Ghana",
@@ -145,7 +145,7 @@ data = response.json()
 print(data)`,
 
     php: `<?php
-$url = "${config.domain}/api/pricing-api";
+$url = "https://udituntwllttyejobufm.supabase.co/functions/v1/pricing-api";
 $params = http_build_query([
     'from' => 'Nigeria',
     'to' => 'Ghana', 
@@ -250,9 +250,9 @@ print_r($data);
               <div>
                 <div className="flex items-center space-x-2 mb-2">
                   <Badge variant="secondary" className="bg-green-100 text-green-800">GET</Badge>
-                <code className="text-sm bg-muted px-2 py-1 rounded">
-                  /api/pricing-api
-                </code>
+                 <code className="text-sm bg-muted px-2 py-1 rounded">
+                   /functions/v1/pricing-api
+                 </code>
                 </div>
                 <p className="text-muted-foreground">
                   Calculate shipping costs between countries based on weight and package type.
